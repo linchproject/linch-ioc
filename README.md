@@ -1,1 +1,1 @@
-IoC Controller
+Simple IoC Container
