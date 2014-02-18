@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A simple IOC container that autowires by setter injection.
+ * A simple IOC container that injects by setter injection.
  *
  * @author Georg Schmidl
  */
@@ -46,7 +46,7 @@ public class Container {
     public void add(String key, Object object) {
         this.classes.put(key, object.getClass());
         this.objects.put(key, object);
-        autowire(object);
+        inject(object);
     }
 
     /**
@@ -63,7 +63,7 @@ public class Container {
                 try {
                     object = clazz.newInstance();
                     this.objects.put(key, object);
-                    autowire(object);
+                    inject(object);
                     for (Class<?> interfaceClass : object.getClass().getInterfaces()) {
                         if (Component.class.equals(interfaceClass)) {
                             Method initMethod = object.getClass().getMethod("init");
@@ -85,11 +85,11 @@ public class Container {
     }
 
     /**
-     * Autowires a given objects by setter injection.
+     * Injects a given object by setter injection.
      *
-     * @param object object to be autowired
+     * @param object object to be injected
      */
-    public void autowire(Object object) {
+    public void inject(Object object) {
         for (String key : this.classes.keySet()) {
             try {
                 String setterName = getSetterName(key);

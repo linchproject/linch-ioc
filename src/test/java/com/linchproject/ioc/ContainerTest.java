@@ -47,13 +47,13 @@ public class ContainerTest {
     }
 
     @Test
-    public void testAutowire() throws Exception {
+    public void testInject() throws Exception {
         Container container = new Container();
         container.add("a", A.class);
         container.add("b", B.class);
 
         MyClass myClass = new MyClass();
-        container.autowire(myClass);
+        container.inject(myClass);
 
         assertNotNull(myClass.getA());
         assertNotNull(myClass.getA().getB());
