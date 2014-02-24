@@ -77,7 +77,7 @@ public class Container {
                 } catch (NoSuchMethodException e) {
                     // ignore
                 } catch (InvocationTargetException e) {
-                    // ignore
+                    throw new RuntimeException(e.getMessage(), e);
                 }
             }
         }
@@ -99,10 +99,10 @@ public class Container {
                     }
                 }
 
-            } catch (InvocationTargetException e) {
-                // ignore
             } catch (IllegalAccessException e) {
                 // ignore
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
     }
