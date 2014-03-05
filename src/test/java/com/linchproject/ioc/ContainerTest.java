@@ -68,5 +68,40 @@ public class ContainerTest {
 
         A a = (A) container.get("a");
         assertTrue(a.isInit());
+
+        container.add("a", new A());
+
+        a = (A) container.get("a");
+        assertTrue(a.isInit());
+    }
+
+    @Test
+    public void testDestroy() throws Exception {
+        Container container = new Container();
+        container.add("a", A.class);
+
+        A a = (A) container.get("a");
+        assertFalse(a.isDestroy());
+
+        container.add("a", A.class);
+        assertTrue(a.isDestroy());
+
+        a = (A) container.get("a");
+        assertFalse(a.isDestroy());
+
+        container.add("a", new A());
+        assertTrue(a.isDestroy());
+    }
+
+    @Test
+    public void testClear() throws Exception {
+        Container container = new Container();
+        container.add("a", A.class);
+
+        A a = (A) container.get("a");
+        assertFalse(a.isDestroy());
+
+        container.clear();
+        assertTrue(a.isDestroy());
     }
 }

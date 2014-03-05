@@ -10,4 +10,10 @@ public interface Component {
      * and autowiring is completed.
      */
     void init();
+
+    /**
+     * Gets called when a component is removed
+     * from the container.
+     */
+    void destroy();
 }

@@ -34,19 +34,32 @@ public class Container {
      */
     public void add(String key, Class<?> clazz) {
         this.classes.put(key, clazz);
+
+        Object existing = this.objects.get(key);
+        if (existing != null) {
+            destroy(existing);
+            this.objects.remove(key);
+        }
     }
 
     /**
      * Adds a component by object to the container by
      * given key.
      *
-     * @param key
-     * @param object
+     * @param key the unique component key
+     * @param object the component instance
      */
     public void add(String key, Object object) {
         this.classes.put(key, object.getClass());
+
+        Object existing = this.objects.get(key);
+        if (existing != null) {
+            destroy(existing);
+        }
+
         this.objects.put(key, object);
         inject(object);
+        init(object);
     }
 
     /**
@@ -58,27 +71,18 @@ public class Container {
     public Object get(String key) {
         Object object = this.objects.get(key);
         if (object == null) {
-            Class<?> clazz = classes.get(key);
+            Class<?> clazz = this.classes.get(key);
             if (clazz != null) {
                 try {
                     object = clazz.newInstance();
-                    this.objects.put(key, object);
-                    inject(object);
-                    for (Class<?> interfaceClass : object.getClass().getInterfaces()) {
-                        if (Component.class.equals(interfaceClass)) {
-                            Method initMethod = object.getClass().getMethod("init");
-                            initMethod.invoke(object);
-                        }
-                    }
                 } catch (InstantiationException e) {
-                    // ignore
+                    throw new RuntimeException(e.getMessage(), e);
                 } catch (IllegalAccessException e) {
-                    // ignore
-                } catch (NoSuchMethodException e) {
-                    // ignore
-                } catch (InvocationTargetException e) {
                     throw new RuntimeException(e.getMessage(), e);
                 }
+                this.objects.put(key, object);
+                inject(object);
+                init(object);
             }
         }
         return object;
@@ -107,7 +111,44 @@ public class Container {
         }
     }
 
+    /**
+     * Removes all components.
+     */
+    public void clear() {
+        this.classes.clear();
+
+        for (Object object : this.objects.values()) {
+            destroy(object);
+        }
+        this.objects.clear();
+    }
+
     private String getSetterName(String key) {
         return "set" + key.substring(0, 1).toUpperCase() + key.substring(1, key.length());
+    }
+
+    private void init(Object object) {
+        invokeComponentMethod(object, "init");
+    }
+
+    private void destroy(Object object) {
+        invokeComponentMethod(object, "destroy");
+    }
+
+    private void invokeComponentMethod(Object object, String methodName) {
+        for (Class<?> interfaceClass : object.getClass().getInterfaces()) {
+            if (Component.class.equals(interfaceClass)) {
+                try {
+                    Method method = object.getClass().getMethod(methodName);
+                    method.invoke(object);
+                } catch (NoSuchMethodException e) {
+                    // ignore
+                } catch (IllegalAccessException e) {
+                    // ignore
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            }
+        }
     }
 }

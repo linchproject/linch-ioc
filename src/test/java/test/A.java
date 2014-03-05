@@ -9,6 +9,7 @@ public class A implements Component {
     private B b;
 
     private boolean init;
+    private boolean destroy;
 
     public B getB() {
         return b;
@@ -22,8 +23,17 @@ public class A implements Component {
         return init;
     }
 
+    public boolean isDestroy() {
+        return destroy;
+    }
+
     @Override
     public void init() {
         init = true;
+    }
+
+    @Override
+    public void destroy() {
+        destroy = true;
     }
 }
