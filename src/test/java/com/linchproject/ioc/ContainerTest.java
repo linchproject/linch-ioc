@@ -99,9 +99,25 @@ public class ContainerTest {
         container.add("a", A.class);
 
         A a = (A) container.get("a");
+        assertFalse(a.isSucceed());
+        assertFalse(a.isFail());
         assertFalse(a.isDestroy());
 
         container.clear();
+        assertTrue(a.isSucceed());
+        assertFalse(a.isFail());
+        assertTrue(a.isDestroy());
+
+
+        container.add("a", A.class);
+        a = (A) container.get("a");
+        assertFalse(a.isSucceed());
+        assertFalse(a.isFail());
+        assertFalse(a.isDestroy());
+
+        container.clear(false);
+        assertFalse(a.isSucceed());
+        assertTrue(a.isFail());
         assertTrue(a.isDestroy());
     }
 }

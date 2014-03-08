@@ -37,7 +37,7 @@ public class Container {
 
         Object existing = this.objects.get(key);
         if (existing != null) {
-            destroy(existing);
+            destroy(existing, true);
             this.objects.remove(key);
         }
     }
@@ -54,7 +54,7 @@ public class Container {
 
         Object existing = this.objects.get(key);
         if (existing != null) {
-            destroy(existing);
+            destroy(existing, true);
         }
 
         this.objects.put(key, object);
@@ -115,10 +115,18 @@ public class Container {
      * Removes all components.
      */
     public void clear() {
+        clear(true);
+    }
+
+    /**
+     * Removes all components.
+     * @param success whether transactional components should succeed or fail
+     */
+    public void clear(boolean success) {
         this.classes.clear();
 
         for (Object object : this.objects.values()) {
-            destroy(object);
+            destroy(object, success);
         }
         this.objects.clear();
     }
@@ -128,16 +136,17 @@ public class Container {
     }
 
     private void init(Object object) {
-        invokeComponentMethod(object, "init");
+        invokeComponentMethod(object, Initializing.class, "init");
     }
 
-    private void destroy(Object object) {
-        invokeComponentMethod(object, "destroy");
+    private void destroy(Object object, boolean success) {
+        invokeComponentMethod(object, Transactional.class, success? "succeed": "fail");
+        invokeComponentMethod(object, Destroyable.class, "destroy");
     }
 
-    private void invokeComponentMethod(Object object, String methodName) {
+    private void invokeComponentMethod(Object object, Class<?> clazz, String methodName) {
         for (Class<?> interfaceClass : object.getClass().getInterfaces()) {
-            if (Component.class.equals(interfaceClass)) {
+            if (clazz.equals(interfaceClass)) {
                 try {
                     Method method = object.getClass().getMethod(methodName);
                     method.invoke(object);
