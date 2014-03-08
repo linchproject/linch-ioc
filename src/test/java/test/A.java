@@ -12,8 +12,10 @@ public class A implements Initializing, Destroyable, Transactional {
 
     private boolean init;
     private boolean destroy;
-    private boolean succeed;
-    private boolean fail;
+
+    private boolean begin;
+    private boolean commit;
+    private boolean rollback;
 
     public B getB() {
         return b;
@@ -31,12 +33,16 @@ public class A implements Initializing, Destroyable, Transactional {
         return destroy;
     }
 
-    public boolean isSucceed() {
-        return succeed;
+    public boolean isBegin() {
+        return begin;
     }
 
-    public boolean isFail() {
-        return fail;
+    public boolean isCommit() {
+        return commit;
+    }
+
+    public boolean isRollback() {
+        return rollback;
     }
 
     @Override
@@ -50,12 +56,17 @@ public class A implements Initializing, Destroyable, Transactional {
     }
 
     @Override
-    public void succeed() {
-        succeed = true;
+    public void begin() {
+        begin = true;
     }
 
     @Override
-    public void fail() {
-        fail = true;
+    public void commit() {
+        commit = true;
+    }
+
+    @Override
+    public void rollback() {
+        rollback = true;
     }
 }

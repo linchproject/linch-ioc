@@ -9,14 +9,17 @@ package com.linchproject.ioc;
 public interface Transactional {
 
     /**
-     * Gets called before a component is removed from the
-     * container and everything went well.
+     * Is called when the transaction begins.
      */
-    void succeed();
+    void begin();
 
     /**
-     * Gets called before a component is removed from the
-     * container and an error occurred.
+     * Is called when the transaction can be committed.
      */
-    void fail();
+    void commit();
+
+    /**
+     * Is called when the transaction should be rolled back.
+     */
+    void rollback();
 }

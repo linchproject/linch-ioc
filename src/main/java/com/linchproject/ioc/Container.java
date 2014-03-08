@@ -37,7 +37,7 @@ public class Container {
 
         Object existing = this.objects.get(key);
         if (existing != null) {
-            destroy(existing, true);
+            destroy(existing);
             this.objects.remove(key);
         }
     }
@@ -54,7 +54,7 @@ public class Container {
 
         Object existing = this.objects.get(key);
         if (existing != null) {
-            destroy(existing, true);
+            destroy(existing);
         }
 
         this.objects.put(key, object);
@@ -115,32 +115,46 @@ public class Container {
      * Removes all components.
      */
     public void clear() {
-        clear(true);
-    }
-
-    /**
-     * Removes all components.
-     * @param success whether transactional components should succeed or fail
-     */
-    public void clear(boolean success) {
         this.classes.clear();
 
         for (Object object : this.objects.values()) {
-            destroy(object, success);
+            destroy(object);
         }
         this.objects.clear();
     }
 
-    private String getSetterName(String key) {
-        return "set" + key.substring(0, 1).toUpperCase() + key.substring(1, key.length());
+    /**
+     * Tells all transactional components that a transaction begins.
+     */
+    public void begin() {
+        for (Object object : this.objects.values()) {
+            invokeComponentMethod(object, Transactional.class, "begin");
+        }
+    }
+
+    /**
+     * Tells all transactional components that a transaction can be committed.
+     */
+    public void commit() {
+        for (Object object : this.objects.values()) {
+            invokeComponentMethod(object, Transactional.class, "commit");
+        }
+    }
+
+    /**
+     * Tells all transactional components that a transaction should be rolled bacl.
+     */
+    public void rollback() {
+        for (Object object : this.objects.values()) {
+            invokeComponentMethod(object, Transactional.class, "rollback");
+        }
     }
 
     private void init(Object object) {
         invokeComponentMethod(object, Initializing.class, "init");
     }
 
-    private void destroy(Object object, boolean success) {
-        invokeComponentMethod(object, Transactional.class, success? "succeed": "fail");
+    private void destroy(Object object) {
         invokeComponentMethod(object, Destroyable.class, "destroy");
     }
 
@@ -159,5 +173,9 @@ public class Container {
                 }
             }
         }
+    }
+
+    private String getSetterName(String key) {
+        return "set" + key.substring(0, 1).toUpperCase() + key.substring(1, key.length());
     }
 }

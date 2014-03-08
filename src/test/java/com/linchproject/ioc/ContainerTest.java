@@ -99,25 +99,35 @@ public class ContainerTest {
         container.add("a", A.class);
 
         A a = (A) container.get("a");
-        assertFalse(a.isSucceed());
-        assertFalse(a.isFail());
         assertFalse(a.isDestroy());
 
         container.clear();
-        assertTrue(a.isSucceed());
-        assertFalse(a.isFail());
         assertTrue(a.isDestroy());
+    }
 
-
+    @Test
+    public void testTransactional() throws Exception {
+        Container container = new Container();
         container.add("a", A.class);
-        a = (A) container.get("a");
-        assertFalse(a.isSucceed());
-        assertFalse(a.isFail());
-        assertFalse(a.isDestroy());
 
-        container.clear(false);
-        assertFalse(a.isSucceed());
-        assertTrue(a.isFail());
-        assertTrue(a.isDestroy());
+        A a = (A) container.get("a");
+        assertFalse(a.isBegin());
+        assertFalse(a.isCommit());
+        assertFalse(a.isRollback());
+
+        container.begin();
+        assertTrue(a.isBegin());
+        assertFalse(a.isCommit());
+        assertFalse(a.isRollback());
+
+        container.commit();
+        assertTrue(a.isBegin());
+        assertTrue(a.isCommit());
+        assertFalse(a.isRollback());
+
+        container.rollback();
+        assertTrue(a.isBegin());
+        assertTrue(a.isCommit());
+        assertTrue(a.isRollback());
     }
 }
